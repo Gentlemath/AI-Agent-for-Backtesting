@@ -1,0 +1,13 @@
+{
+  "data_version": "2025-01-01",
+  "files": {
+    "prices.parquet": {
+      "sha256": "6a0d46a39901fed5f4abfc2e809ee7582de55adba410ddfa0c17b8c888d282a2",
+      "rows": 2087,
+      "columns": 21,
+      "start_date": "2015-01-01",
+      "end_date": "2022-12-30",
+      "description": "Synthetic ETF + factor universe for frozen evaluation."
+    }
+  }
+}

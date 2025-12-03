@@ -1,0 +1,23 @@
+name: agentic_backtester
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - pyarrow
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - pydantic>=2
+  - pytest
+  - hypothesis
+  - matplotlib
+  - seaborn
+  - requests
+  - pip
+  - pip:
+      - langgraph
+      - langchain
+      - openai
+      - yfinance
+      - globus_sdk

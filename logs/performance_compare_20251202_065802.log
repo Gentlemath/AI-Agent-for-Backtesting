@@ -1,0 +1,373 @@
+
+========== momentum_daily - agentic ==========
+Command: python scripts/run_agentic.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+Pipeline graph saved as pipeline_graph.png
+
+----------
+Validating and parsing strategy specification...
+[guard] attempt=1 verdict=fail status=ok | spec=momentum_daily
+Strategy spec: name='momentum_daily' task='momentum_daily' description='Daily top-k cross-sectional momentum on ETFs.' universe=['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT'] frequency='daily' signal='Rank compounded 63-day return and go long top decile.' rules={'entry': 'rank_desc top_k', 'exit': 'hold N days'} tools=['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover'] required_metrics=['ann_return', 'sharpe', 'max_dd'] params={'lookback': 63, 'top_k': 3, 'holding_period': 20} costs_bps=1.0 start_date=datetime.date(2012, 1, 3) end_date=datetime.date(2025, 10, 31) seed=42 max_leverage=1.0
+
+----------
+Retrieving tools for strategy...
+[retrieve] attempt=1 verdict=fail status=ok | tools=returns,sharpe,drawdown,normalize_weights,compute_turnover
+
+----------
+Generating or repairing strategy code...
+First attempt: invoking coder
+[code] attempt=1 verdict=fail status=ok | path=.adaptive_workdir/strategy_momentum_daily_attempt1.py
+
+----------
+Verifying strategy code...
+Code verification passed.
+[code_verify] attempt=1 verdict=fail status=ok | code_ok=True
+
+----------
+Running backtest...
+Running backtest from 2012-01-03 to 2025-10-31 on 6 symbols.
+Price data shape: (3479, 6)
+Price data date range: 2012-01-03 to 2025-10-31
+Price data columns: ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT']
+Backtest run succeeded.
+[run] attempt=1 verdict=fail status=ok | runtime_ok=True
+
+----------
+Verifying backtest results...
+-----------
+
+Backtest Results:
+Annualized Return: 10.55%
+Annualized Volatility: 14.48%
+Sharpe Ratio: 0.77
+Maximum Drawdown: -36.78%
+Turnover: 2.52%
+-----------
+
+Backtest result verification passed.
+[result_verify] attempt=1 verdict=pass status=ok | verifier_ok=True
+
+----------
+Generating report...
+[report] attempt=1 verdict=pass status=ok | final_verdict=pass
+=== Agentic Backtest ===
+Task: momentum_daily
+Verdict: pass
+Metrics: {'ann_return': 0.1054640672323659, 'ann_vol': 0.14475860981738656, 'sharpe': 0.7653565160598538, 'max_dd': -0.36780450224248173, 'turnover': 0.02524927581961516}
+Attempts: 1
+Tools: ['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover']
+Artifacts: .adaptive_workdir/strategy_momentum_daily_attempt1.py
+Report: reports/adaptive_workflow/summary_momentum_daily.md
+================================
+
+========== momentum_daily - single_shot run 1 ==========
+Command: python scripts/run_single_shot_agent.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+Validating specification via guard...
+Spec resolved: momentum_daily (momentum_daily) 2012-01-03→2025-10-31 on 6 symbols
+Requested tools: ['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover']
+Fetched 5 tool modules.
+Coder emitted module at .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Code verification passed.
+Running backtest...
+Running backtest from 2012-01-03 to 2025-10-31 on 6 symbols.
+Price data shape: (3479, 6)
+Price data date range: 2012-01-03 to 2025-10-31
+Price data columns: ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT']
+Backtest completed.
+Verifier outcome: pass; issues=[]
+Summary report written to reports/sigle_shot/summary_momentum_daily.md
+=== LLM Single-Shot Backtest ===
+Task: momentum_daily
+Verdict: pass
+Metrics:
+  - ann_return: 10.546%
+  - ann_vol: 14.476%
+  - sharpe: 0.765
+  - max_dd: -36.780%
+  - turnover: 0.025
+Artifact: .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Report: reports/sigle_shot/summary_momentum_daily.md
+================================
+
+========== momentum_daily - single_shot run 2 ==========
+Command: python scripts/run_single_shot_agent.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+Validating specification via guard...
+Spec resolved: momentum_daily (momentum_daily) 2012-01-03→2025-10-31 on 6 symbols
+Requested tools: ['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover']
+Fetched 5 tool modules.
+Coder emitted module at .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Code verification passed.
+Running backtest...
+Running backtest from 2012-01-03 to 2025-10-31 on 6 symbols.
+Price data shape: (3479, 6)
+Price data date range: 2012-01-03 to 2025-10-31
+Price data columns: ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT']
+Backtest completed.
+Verifier outcome: pass; issues=[]
+Summary report written to reports/sigle_shot/summary_momentum_daily.md
+=== LLM Single-Shot Backtest ===
+Task: momentum_daily
+Verdict: pass
+Metrics:
+  - ann_return: 10.546%
+  - ann_vol: 14.476%
+  - sharpe: 0.765
+  - max_dd: -36.780%
+  - turnover: 0.025
+Artifact: .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Report: reports/sigle_shot/summary_momentum_daily.md
+================================
+
+========== momentum_daily - single_shot run 3 ==========
+Command: python scripts/run_single_shot_agent.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+Validating specification via guard...
+Spec resolved: momentum_daily (momentum_daily) 2012-01-03→2025-10-31 on 6 symbols
+Requested tools: ['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover']
+Fetched 5 tool modules.
+Coder emitted module at .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Code verification passed.
+Running backtest...
+Running backtest from 2012-01-03 to 2025-10-31 on 6 symbols.
+Price data shape: (3479, 6)
+Price data date range: 2012-01-03 to 2025-10-31
+Price data columns: ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT']
+Backtest completed.
+Verifier outcome: pass; issues=[]
+Summary report written to reports/sigle_shot/summary_momentum_daily.md
+=== LLM Single-Shot Backtest ===
+Task: momentum_daily
+Verdict: pass
+Metrics:
+  - ann_return: 10.546%
+  - ann_vol: 14.476%
+  - sharpe: 0.765
+  - max_dd: -36.780%
+  - turnover: 0.025
+Artifact: .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Report: reports/sigle_shot/summary_momentum_daily.md
+================================
+
+========== momentum_daily - single_shot run 4 ==========
+Command: python scripts/run_single_shot_agent.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+Validating specification via guard...
+Spec resolved: momentum_daily (momentum_daily) 2012-01-03→2025-10-31 on 6 symbols
+Requested tools: ['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover']
+Fetched 5 tool modules.
+Coder emitted module at .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Code verification passed.
+Running backtest...
+Running backtest from 2012-01-03 to 2025-10-31 on 6 symbols.
+Price data shape: (3479, 6)
+Price data date range: 2012-01-03 to 2025-10-31
+Price data columns: ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT']
+Backtest completed.
+Verifier outcome: pass; issues=[]
+Summary report written to reports/sigle_shot/summary_momentum_daily.md
+=== LLM Single-Shot Backtest ===
+Task: momentum_daily
+Verdict: pass
+Metrics:
+  - ann_return: 10.546%
+  - ann_vol: 14.476%
+  - sharpe: 0.765
+  - max_dd: -36.780%
+  - turnover: 0.025
+Artifact: .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Report: reports/sigle_shot/summary_momentum_daily.md
+================================
+
+========== momentum_daily - single_shot run 5 ==========
+Command: python scripts/run_single_shot_agent.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+Validating specification via guard...
+Spec resolved: momentum_daily (momentum_daily) 2012-01-03→2025-10-31 on 6 symbols
+Requested tools: ['returns', 'sharpe', 'drawdown', 'normalize_weights', 'compute_turnover']
+Fetched 5 tool modules.
+Coder emitted module at .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Code verification passed.
+Running backtest...
+Running backtest from 2012-01-03 to 2025-10-31 on 6 symbols.
+Price data shape: (3479, 6)
+Price data date range: 2012-01-03 to 2025-10-31
+Price data columns: ['SPY', 'QQQ', 'IWM', 'EFA', 'EEM', 'TLT']
+Backtest completed.
+Verifier outcome: pass; issues=[]
+Summary report written to reports/sigle_shot/summary_momentum_daily.md
+=== LLM Single-Shot Backtest ===
+Task: momentum_daily
+Verdict: pass
+Metrics:
+  - ann_return: 10.546%
+  - ann_vol: 14.476%
+  - sharpe: 0.765
+  - max_dd: -36.780%
+  - turnover: 0.025
+Artifact: .sigle_shot_workdir/strategy_momentum_daily_attempt1.py
+Report: reports/sigle_shot/summary_momentum_daily.md
+================================
+
+========== momentum_daily - pure_llm run 1 ==========
+Command: python scripts/run_pure_llm.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+[pure-llm] Generated script at .pure_llm/pure_llm_momentum_daily_attempt1.py
+[pure-llm] Execution failed with exit code 1.
+
+[stderr]
+Traceback (most recent call last):
+  File "/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py", line 112, in <module>
+    main()
+  File "/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py", line 102, in main
+    metrics = run_strategy(prices, SPEC)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py", line 71, in run_strategy
+    normalized_weights = smoothed_weights / smoothed_weights.sum(axis=1)[:, np.newaxis] * max_leverage
+                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/agentic_backtester/lib/python3.11/site-packages/pandas/core/series.py", line 1165, in __getitem__
+    return self._get_with(key)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/agentic_backtester/lib/python3.11/site-packages/pandas/core/series.py", line 1175, in _get_with
+    return self._get_values_tuple(key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/agentic_backtester/lib/python3.11/site-packages/pandas/core/series.py", line 1215, in _get_values_tuple
+    disallow_ndim_indexing(result)
+  File "/opt/anaconda3/envs/agentic_backtester/lib/python3.11/site-packages/pandas/core/indexers/utils.py", line 341, in disallow_ndim_indexing
+    raise ValueError(
+ValueError: Multi-dimensional indexing (e.g. `obj[:, None]`) is no longer supported. Convert to a numpy array before indexing instead.
+================================
+
+========== momentum_daily - pure_llm run 2 ==========
+Command: python scripts/run_pure_llm.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+[pure-llm] Generated script at .pure_llm/pure_llm_momentum_daily_attempt1.py
+[pure-llm] Execution succeeded. Output:
+ann_return: 0.0
+ann_vol: 0.0
+sharpe: nan
+max_dd: 0.0
+turnover: 0.0
+hit_rate: 0.0
+profit_factor: nan
+{
+    "ann_return": 0.0,
+    "ann_vol": 0.0,
+    "sharpe": NaN,
+    "max_dd": 0.0,
+    "turnover": 0.0,
+    "hit_rate": 0.0,
+    "profit_factor": NaN
+}
+
+[pure-llm] stderr:
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:82: RuntimeWarning: invalid value encountered in scalar divide
+  sharpe = ann_return / ann_vol
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:86: RuntimeWarning: invalid value encountered in scalar divide
+  profit_factor = (portfolio_returns[portfolio_returns > 0].sum() / -portfolio_returns[portfolio_returns < 0].sum())
+================================
+
+========== momentum_daily - pure_llm run 3 ==========
+Command: python scripts/run_pure_llm.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+[pure-llm] Generated script at .pure_llm/pure_llm_momentum_daily_attempt1.py
+[pure-llm] Execution succeeded. Output:
+ann_return: 0.0
+ann_vol: 0.0
+sharpe: nan
+max_dd: 0.0
+turnover: 0.0
+hit_rate: 0.0
+profit_factor: nan
+{
+    "ann_return": 0.0,
+    "ann_vol": 0.0,
+    "sharpe": NaN,
+    "max_dd": 0.0,
+    "turnover": 0.0,
+    "hit_rate": 0.0,
+    "profit_factor": NaN
+}
+
+[pure-llm] stderr:
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:73: RuntimeWarning: invalid value encountered in scalar divide
+  sharpe = ann_return / ann_vol
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:74: FutureWarning: Series.__getitem__ treating keys as positions is deprecated. In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior). To access a value by position, use `ser.iloc[pos]`
+  max_dd = (1 + portfolio_returns).cumprod().rolling(len(portfolio_returns)).apply(lambda x: (x.max() - x[-1]) / x.max()).max()
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:77: RuntimeWarning: invalid value encountered in scalar divide
+  profit_factor = (portfolio_returns[portfolio_returns > 0].sum() / -portfolio_returns[portfolio_returns < 0].sum())
+================================
+
+========== momentum_daily - pure_llm run 4 ==========
+Command: python scripts/run_pure_llm.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+[pure-llm] Generated script at .pure_llm/pure_llm_momentum_daily_attempt1.py
+[pure-llm] Execution succeeded. Output:
+ann_return: 0.0000
+ann_vol: 0.0000
+sharpe: nan
+max_dd: 0.0000
+turnover: 0.0000
+hit_rate: 0.0000
+profit_factor: nan
+Metrics:
+{'ann_return': '0.0000', 'ann_vol': '0.0000', 'sharpe': 'nan', 'max_dd': '0.0000', 'turnover': '0.0000', 'hit_rate': '0.0000', 'profit_factor': 'nan'}
+
+[pure-llm] stderr:
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:79: RuntimeWarning: invalid value encountered in scalar divide
+  sharpe = ann_return / ann_vol
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:83: RuntimeWarning: invalid value encountered in scalar divide
+  profit_factor = (portfolio_returns[portfolio_returns > 0].sum() / -portfolio_returns[portfolio_returns < 0].sum())
+================================
+
+========== momentum_daily - pure_llm run 5 ==========
+Command: python scripts/run_pure_llm.py --task momentum_daily
+Exit code: 0
+
+[stdout]
+[pure-llm] Generated script at .pure_llm/pure_llm_momentum_daily_attempt1.py
+[pure-llm] Execution succeeded. Output:
+ann_return: 0.0
+ann_vol: 0.0
+sharpe: nan
+max_dd: 0.0
+turnover: 0.0
+hit_rate: 0.0
+profit_factor: nan
+{
+    "ann_return": 0.0,
+    "ann_vol": 0.0,
+    "sharpe": NaN,
+    "max_dd": 0.0,
+    "turnover": 0.0,
+    "hit_rate": 0.0,
+    "profit_factor": NaN
+}
+
+[pure-llm] stderr:
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:80: RuntimeWarning: invalid value encountered in scalar divide
+  sharpe = ann_return / ann_vol
+/Users/jojowang/Documents/UChi/Class/CMSC35370-1-AI_Agents_for_Science/Final/agentic_backtester/.pure_llm/pure_llm_momentum_daily_attempt1.py:84: RuntimeWarning: invalid value encountered in scalar divide
+  profit_factor = (portfolio_returns[portfolio_returns > 0].sum() / -portfolio_returns[portfolio_returns < 0].sum())
+================================
