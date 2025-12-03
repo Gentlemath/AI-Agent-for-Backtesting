@@ -14,22 +14,25 @@ Agentic pipeline for testing whether multi-agent, tool-using workflows beat a si
 - **Verifier Agent** enforces deterministic quality checks (finite metrics, turnover bounds, Sharpe limits, hit-rate in [0,1]); failures trigger the repair loop.
 - **Reporter Agent** captures Markdown summaries with metrics, diagnostics, and issues for downstream evaluation.
 
-## Task Suite & Data Freeze
+## Task Suite & Data
 - 12 tasks: daily/weekly momentum, mean reversion, breakout, pair trading, volatility targeting, risk parity, ATR stop/TP bandit, weekday mask, regime filter (MA cross), cost sensitivity, walk-forward robustness.
 - Deterministic parameters (window lengths, thresholds, holding periods) are encoded inside `src/backtester/tasks.py`.
-- Data lives in `data/prices.parquet` with manifest `data/data_manifest.json` (SHA256 + date bounds). To reproduce, keep the file immutable and rerun `python scripts/run_agentic.py` only against this snapshot.
+- Data lives in `data/ETF`, supporting all frozen tasks. When running the agent, the `DataLoader` can also automatically download extra data needed.
 
 ## Running the Pipelines
 ```bash
 conda env create -f environment.yml
 conda activate agentic_backtester
 
-# Agentic multi-agent loop (prompt string, file, or task shortcut)
+# Adaptive multi-round agent system (prompt string, file, or task shortcut)
 python scripts/run_agentic.py --task momentum_daily
 python scripts/run_agentic.py --prompt '{"task":"mean_reversion","start_date":"2016-01-01","end_date":"2022-12-31"}'
 
-# Baseline (single-shot, no repair)
-python scripts/run_llm_only.py --task momentum_daily
+# Ablation (single-shot agent)
+python scripts/run_single_shot_agent.py --task momentum_daily
+
+# Baseline (single-shot llm, no repair)
+python scripts/run_pure_llm.py --task momentum_daily
 ```
 
 Outputs include generated strategy modules under `.artifacts/`, execution logs, and Markdown summaries in `reports/summary_<task>.md`.
@@ -59,8 +62,7 @@ The `DataLoader` helper automatically hydrates missing tickers through:
 Fetched data are cached in `data/cache/<symbol>.parquet`, so future runs stay offline unless new tickers/periods are requested.
 
 ## Evaluation Harness
-- `eval/evaluate.py` exposes helpers for paired bootstrap deltas plus `summarize()`/`compare()` utilities operating on serialized `WorkflowState`s.
-- Pytest suite (see `eval/tests/`) checks guardrails like spec validation and look-ahead placeholders; extend with property tests as you add new agents.
+- `eval/performance_compare.py`.
 
 ## Reproducibility Notes
 - All randomness (strategy seeds, bootstrap RNG) routes through the Pydantic specs; any repair bumps the seed deterministically.
