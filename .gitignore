@@ -1,0 +1,22 @@
+# Ignore Word documents and PDFs
+*.docx
+*.doc
+*.pdf
+results_summary1.png
+whole_pipeline.png
+DSI_logo.png
+
+
+# ignore system files
+.DS_Store
+Thumbs.db
+
+# ignore virtual environment folders
+venv/
+env/
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+*.log
+

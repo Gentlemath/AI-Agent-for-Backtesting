@@ -50,7 +50,7 @@ def main(task: str | None):
         # Agentic multi-attempt run (single invocation)
         cmd_agentic = ["python", "scripts/run_agentic.py", "--task", t]
         rc, stdout, stderr = _run_command(cmd_agentic)
-        _write_log(log_file, f"{t} - agentic", cmd_agentic, rc, stdout, stderr)
+        _write_log(log_file, f"{t} - adaptive agent", cmd_agentic, rc, stdout, stderr)
         _print_progress(t, "agentic", None, rc)
 
         # Single-shot runs (5 times)
@@ -70,7 +70,7 @@ def main(task: str | None):
     print("\nAll runs complete. See log for details.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compare agentic vs single-shot vs pure LLM backtests.")
+    parser = argparse.ArgumentParser(description="Compare adaptive agent vs single-shot vs pure LLM backtests.")
     parser.add_argument("--task", help="Optional single task to run. Defaults to all tasks.", default=None)
     args = parser.parse_args()
     main(args.task)

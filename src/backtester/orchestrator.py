@@ -69,13 +69,13 @@ class Orchestrator:
     # --------------------------
     def _build_graph(self):
         graph = StateGraph(GraphState)
-        graph.add_node("guard", self._node_guard)
-        graph.add_node("retrieve", self._node_retrieve)
-        graph.add_node("code", self._node_code)
-        graph.add_node("code_verify", self._node_code_verify)
-        graph.add_node("run", self._node_run)
-        graph.add_node("result_verify", self._node_result_verify)
-        graph.add_node("report", self._node_report)
+        graph.add_node("guard", self._node_guard, metadata={"Desc":"Specification Safeguard"})
+        graph.add_node("retrieve", self._node_retrieve, metadata={"Desc":"Tool Retriever"})
+        graph.add_node("code", self._node_code, metadata={"Desc":"Code Generator with Fixer if repairing"})
+        graph.add_node("code_verify", self._node_code_verify, metadata={"Desc":"Code Verifier"})
+        graph.add_node("run", self._node_run, metadata={"Desc":"Code Runner"})
+        graph.add_node("result_verify", self._node_result_verify, metadata={"Desc":"Backtest Verifier"})
+        graph.add_node("report", self._node_report, metadata={"Desc":"Results Reporter"})
 
         graph.set_entry_point("guard")
         graph.add_edge("guard", "retrieve")
