@@ -58,6 +58,8 @@ def _build_system_prompt() -> str:
         - Respect `spec["frequency"]`: for "weekly" resample to weekly closes/returns; for "daily" stay on daily data.
         - Smooth positions over the holding period (rolling mean) before normalizing.
         - Normalize weights via custom code (unit gross leverage scaled by max_leverage) and compute turnover using those weights.
+        - You cannot use today's data to make today's trading decisions. Always shift signals/weights by one period to avoid lookahead bias.
+        - Implement the strategy logic as described in SPEC["signal"] and SPEC["rules"].
         - Compute metrics: annualized return, annualized vol, Sharpe, max drawdown, turnover, hit rate, profit factor.
         - At the end of `main()`, print one line per metric plus a JSON-like summary so we can capture the output.
         - Include `if __name__ == "__main__": main()`.
@@ -82,10 +84,12 @@ def _build_user_prompt(spec: StrategySpec, raw_prompt: str) -> str:
     ).strip()
 
 def _extract_code(raw: str) -> str:
+    if raw is None:
+        raise LLMGenerationError("LLM response did not include any text content.")
     matches = re.findall(r"```(?:python)?\n(.*?)```", raw, flags=re.DOTALL)
     return matches[-1] if matches else raw
 
-def _generate_script(spec: StrategySpec, raw_prompt: str) -> Path:
+def _generate_script(spec: StrategySpec, raw_prompt: str, rounds:int) -> Path:
     WORKDIR.mkdir(parents=True, exist_ok=True)
     llm = ArgonneLLM()
     system_prompt = _build_system_prompt()
@@ -98,7 +102,7 @@ def _generate_script(spec: StrategySpec, raw_prompt: str) -> Path:
     code = _extract_code(content).strip()
     if not code:
         raise LLMGenerationError("LLM returned empty script.")
-    path = WORKDIR / f"pure_llm_{spec.name}_attempt1.py"
+    path = WORKDIR / f"pure_llm_{spec.name}_attempt{rounds}.py"
     path.write_text(code + "\n")
     return path
 
@@ -114,11 +118,11 @@ def _run_script(path: Path) -> tuple[int, str, str]:
     )
     return proc.returncode, proc.stdout, proc.stderr
 
-def main(task: str | None, prompt: str | None, prompt_file: str | None):
+def main(task: str | None, prompt: str | None, prompt_file: str | None, rounds: int) -> None:
     prompt_text = _resolve_prompt(task, prompt, prompt_file)
     guard = SpecGuardAgent()
     spec = guard.validate_and_struct(prompt_text)
-    script_path = _generate_script(spec, prompt_text)
+    script_path = _generate_script(spec, prompt_text, rounds)
     print(f"[pure-llm] Generated script at {script_path}")
     rc, stdout, stderr = _run_script(script_path)
     if rc == 0:
@@ -141,5 +145,6 @@ if __name__ == "__main__":
     parser.add_argument("--task", help="Task name to seed the prompt.")
     parser.add_argument("--prompt", help="Inline prompt string.")
     parser.add_argument("--prompt-file", help="File containing the prompt JSON/text.")
+    parser.add_argument("--rounds", type=int, default=1, help="Number of attempts (default: 1).")
     args = parser.parse_args()
-    main(args.task, args.prompt, args.prompt_file)
+    main(args.task, args.prompt, args.prompt_file, args.rounds)

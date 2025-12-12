@@ -165,7 +165,7 @@ class Orchestrator:
         logs = state["run_logs"]
         if attempt == 1 and not last_error and not failed_checks:
             print(f"First attempt: invoking coder")
-            path, code = self.coder.write_module(spec, tools, attempt=attempt)
+            path, code = self.coder.write_module(spec, tools, last_code, attempt)
             logs.append(f"attempt {attempt}: coder generated strategy at {path}")
         else:
             print(f"Repair attempt {attempt - 1}: invoking fixer")

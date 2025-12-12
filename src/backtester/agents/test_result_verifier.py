@@ -14,6 +14,9 @@ def _non_trivial_performance(result: BacktestResult, tol: float = 1e-1) -> bool:
     score = abs(result.ann_return) + result.ann_vol + abs(result.max_dd) + result.turnover
     return score > tol
 
+def _rerun_guard(limit: float, result: BacktestResult) -> bool:
+    return result.ann_return >= limit
+
 def _turnover_guard(limit: float, result: BacktestResult) -> bool:
     return result.turnover <= limit
 
@@ -26,6 +29,7 @@ def _hit_rate_guard(result: BacktestResult) -> bool:
 CHECKS = {
     "finite_metrics": _finite_metrics,
     "non_trivial_performance": _non_trivial_performance,
+    "return_reasonable": partial(_rerun_guard, 0.0),
     "turnover_reasonable": partial(_turnover_guard, 5.0),
     "sharpe_in_range": _sharpe_guard,
     "hit_rate_bounds": _hit_rate_guard,

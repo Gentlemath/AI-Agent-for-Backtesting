@@ -47,22 +47,22 @@ def main(task: str | None):
     for t in tasks:
         print(f"\n=== Task: {t} ===")
 
-        # Agentic multi-attempt run (single invocation)
-        cmd_agentic = ["python", "scripts/run_agentic.py", "--task", t]
-        rc, stdout, stderr = _run_command(cmd_agentic)
-        _write_log(log_file, f"{t} - adaptive agent", cmd_agentic, rc, stdout, stderr)
-        _print_progress(t, "agentic", None, rc)
+        # # Agentic multi-attempt run (single invocation)
+        # cmd_agentic = ["python", "scripts/run_adaptive_agent.py", "--task", t]
+        # rc, stdout, stderr = _run_command(cmd_agentic)
+        # _write_log(log_file, f"{t} - adaptive agent", cmd_agentic, rc, stdout, stderr)
+        # _print_progress(t, "agentic", None, rc)
 
-        # Single-shot runs (5 times)
-        for i in range(1, 6):
-            cmd_single = ["python", "scripts/run_single_shot_agent.py", "--task", t]
-            rc, stdout, stderr = _run_command(cmd_single)
-            _write_log(log_file, f"{t} - single_shot run {i}", cmd_single, rc, stdout, stderr)
-            _print_progress(t, "single_shot", i, rc)
+        # # Single-shot runs (5 times)
+        # for i in range(1, 6):
+        #     cmd_single = ["python", "scripts/run_single_shot_agent.py", "--task", t, "--rounds", str(i)]
+        #     rc, stdout, stderr = _run_command(cmd_single)
+        #     _write_log(log_file, f"{t} - single_shot run {i}", cmd_single, rc, stdout, stderr)
+        #     _print_progress(t, "single_shot", i, rc)
 
         # Pure LLM runs (5 times)
         for i in range(1, 6):
-            cmd_pure = ["python", "scripts/run_pure_llm.py", "--task", t]
+            cmd_pure = ["python", "scripts/run_pure_llm.py", "--task", t, "--rounds", str(i)]
             rc, stdout, stderr = _run_command(cmd_pure)
             _write_log(log_file, f"{t} - pure_llm run {i}", cmd_pure, rc, stdout, stderr)
             _print_progress(t, "pure_llm", i, rc)

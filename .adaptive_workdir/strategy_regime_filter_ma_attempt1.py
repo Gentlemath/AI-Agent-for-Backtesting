@@ -5,68 +5,52 @@ from backtester.kb.drawdown import max_drawdown
 from backtester.kb.strategies import normalize_weights, compute_turnover
 
 def run_strategy(prices: pd.DataFrame, spec: dict) -> dict:
-    """
-    Run a trading strategy based on the provided specification.
+    # Extract parameters from the spec
+    fast = spec['params']['fast']
+    slow = spec['params']['slow']
+    smoothing_window = spec['params']['smoothing_window']
+    max_leverage = spec['max_leverage']
+    frequency = spec['frequency']
 
-    Parameters:
-    prices (pd.DataFrame): A DataFrame of asset prices.
-    spec (dict): A dictionary containing the strategy specification.
+    # Compute moving averages
+    fast_ma = prices.rolling(window=fast).mean()
+    slow_ma = prices.rolling(window=slow).mean()
 
-    Returns:
-    dict: A dictionary containing the strategy diagnostics.
-    """
+    # Create a binary risk-on indicator
+    risk_on = (fast_ma > slow_ma).astype(int)
 
-    # Extract parameters from the strategy specification
-    universe = spec["universe"]
-    frequency = spec["frequency"]
-    fast_ma = spec["params"]["fast"]
-    slow_ma = spec["params"]["slow"]
-    max_leverage = spec["max_leverage"]
-    costs_bps = spec["costs_bps"]
+    # Smooth the risk-on indicator
+    smoothed_risk_on = risk_on.rolling(window=smoothing_window).mean()
 
-    # Resample prices to the specified frequency
-    if frequency == "weekly":
-        prices = prices.resample("W").last()
+    # Shift the smoothed risk-on indicator to avoid lookahead bias
+    smoothed_risk_on = smoothed_risk_on.shift(1)
 
-    # Calculate moving averages
-    fast_ma_values = prices.rolling(window=fast_ma).mean()
-    slow_ma_values = prices.rolling(window=slow_ma).mean()
-
-    # Create a signal based on the moving average crossover
-    signal = (fast_ma_values > slow_ma_values).astype(int)
-
-    # Smooth the signal over the holding period
-    holding_period = max(fast_ma, slow_ma)
-    smoothed_signal = signal.rolling(window=holding_period).mean()
-
-    # Normalize the weights
-    weights = normalize_weights(smoothed_signal, max_leverage=max_leverage)
+    # Normalize the smoothed risk-on indicator to create weights
+    weights = normalize_weights(smoothed_risk_on, max_leverage=max_leverage)
 
     # Compute turnover
     turnover = compute_turnover(weights)
 
-    # Calculate returns
-    returns = pct_returns(prices) * weights
+    # Compute returns
+    if frequency == 'daily':
+        returns = pct_returns(prices) * weights
+        periods = 252
+    elif frequency == 'weekly':
+        prices_weekly = prices.resample('W').last()
+        returns_weekly = pct_returns(prices_weekly) * weights.resample('W').last()
+        returns = returns_weekly.resample('D').ffill()
+        periods = 52
 
-    # Calculate portfolio returns
+    # Compute portfolio returns
     portfolio_returns = returns.sum(axis=1)
 
-    # Calculate Sharpe ratio
-    sharpe = sharpe_ratio(portfolio_returns, periods=252 if frequency == "daily" else 52)
-
-    # Calculate maximum drawdown
-    max_dd = max_drawdown(portfolio_returns)
-
-    # Calculate annualized return
-    ann_return = portfolio_returns.mean() * (252 if frequency == "daily" else 52)
-
-    # Create diagnostics dictionary
+    # Compute diagnostics
     diagnostics = {
-        "returns": portfolio_returns,
-        "turnover": turnover,
-        "sharpe": sharpe,
-        "max_dd": max_dd,
-        "ann_return": ann_return
+        'returns': portfolio_returns,
+        'turnover': turnover,
+        'ann_return': portfolio_returns.mean() * periods,
+        'sharpe': sharpe_ratio(portfolio_returns, periods=periods),
+        'max_dd': max_drawdown(portfolio_returns)
     }
 
     return diagnostics

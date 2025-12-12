@@ -52,7 +52,7 @@ def _resolve_prompt(task: str | None, prompt: str | None, prompt_file: str | Non
 def _log(msg: str) -> None:
     print(msg)
 
-def _single_shot_backtest(prompt_text: str) -> tuple[str, StrategySpec | None, BacktestResult | None, str, list[str], str | None, str]:
+def _single_shot_backtest(prompt_text: str, rounds:int) -> tuple[str, StrategySpec | None, BacktestResult | None, str, list[str], str | None, str]:
     guard = SpecGuardAgent()
     retriever = RetrieverAgent(KB_ROOT)
     coder = CoderAgent(WORKDIR)
@@ -73,7 +73,7 @@ def _single_shot_backtest(prompt_text: str) -> tuple[str, StrategySpec | None, B
         _log(f"Requested tools: {tools}")
         specs = retriever.fetch(tools)
         _log(f"Fetched {len(specs)} tool modules.")
-        path, _code = coder.write_module(spec, specs, attempt=1)
+        path, _code = coder.write_module(spec, specs, attempt=rounds)
         artifact_path = path
         logs.append(f"coder generated strategy at {path}")
         _log(f"Coder emitted module at {path}")
@@ -129,9 +129,9 @@ def _print_result(verdict: str, spec: StrategySpec | None, result: BacktestResul
         print(f"Artifact: {artifact_path}")
     print(f"Report: {report_path}")
 
-def main(task: str | None, prompt: str | None, prompt_file: str | None):
+def main(task: str | None, prompt: str | None, prompt_file: str | None, rounds: int):
     prompt_text = _resolve_prompt(task, prompt, prompt_file)
-    verdict, spec, result, report_path, _logs, reason, artifact = _single_shot_backtest(prompt_text)
+    verdict, spec, result, report_path, _logs, reason, artifact = _single_shot_backtest(prompt_text, rounds)
     _print_result(verdict, spec, result, report_path, artifact, reason)
 
 if __name__ == "__main__":
@@ -139,5 +139,6 @@ if __name__ == "__main__":
     parser.add_argument("--task", help="Task name to seed the prompt.")
     parser.add_argument("--prompt", help="Inline prompt string.")
     parser.add_argument("--prompt-file", help="File containing the prompt (same JSON used by agentic run).")
+    parser.add_argument("--rounds", type=int, default=1, help="Number of attempts (default: 1).")   
     args = parser.parse_args()
-    main(args.task, args.prompt, args.prompt_file)
+    main(args.task, args.prompt, args.prompt_file, args.rounds)

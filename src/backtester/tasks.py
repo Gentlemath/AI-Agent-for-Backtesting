@@ -62,31 +62,82 @@ TASK_LIBRARY: Dict[str, Dict[str, Any]] = {
     "momentum_daily": _base_spec(
         "momentum_daily",
         "Daily top-k cross-sectional momentum on ETFs.",
-        signal="Rank compounded 63-day return and go long top decile.",
-        rules={"entry": "rank_desc top_k", "exit": "hold N days"},
+        signal=(
+            "Compute 63-day compounded returns and rank assets cross-sectionally from highest to lowest each day, going long the top-k names."
+            "Assign long weights based on an N-day moving average of top-k membership."
+        ),
+        rules={
+            "entry": "rank_desc top_k; signal = N-day average of top_k indicator",
+            "exit": "continuous rebalancing; no discrete hold-N-days tickets"
+        },
         params={"lookback": 63, "top_k": 3, "holding_period": 20},
     ),
     "momentum_weekly": _base_spec(
         "momentum_weekly",
-        "Weekly momentum with slower turnover.",
+        "Weekly top-k cross-sectional momentum on ETFs with slower turnover.",
         frequency="weekly",
-        signal="Weekly returns ranked over trailing 26 weeks.",
-        rules={"entry": "top_2", "exit": "stop if rank drops below 5"},
+        signal=(
+            "Compute trailing 26-week compounded returns and rank assets "
+            "cross-sectionally in descending order each week. "
+            "Define a binary top-k membership indicator and smooth it over N weeks "
+            "(N = holding_period) to obtain continuous momentum weights."
+        ),
+        rules={
+            "entry": "weekly rank_desc top_k; signal = N-week moving average of top_k indicator",
+            "exit": "rebalance weekly using the smoothed signal; no discrete hold-N-weeks tickets",
+        },
         params={"lookback": 26, "top_k": 2, "holding_period": 8},
     ),
     "mean_reversion": _base_spec(
         "mean_reversion",
-        "Short-term contrarian rotation on equities.",
-        signal="Fade 5-day z-score; dollar-neutral weights.",
-        rules={"entry": "zscore below -1 buys, above +1 sells", "exit": "revert to mean"},
-        params={"lookback": 5, "z_entry": 1.0, "z_exit": 0.2},
+        "Short-term cross-sectional contrarian rotation on equities.",
+        universe = ["SPY"],
+        signal=(
+            "For each stock, compute a {lookback}-day return z-score (standardized across the universe). "
+            "Go long names with zscore <= -z_entry and short names with zscore >= +z_entry, "
+            "with dollar-neutral portfolio weights."
+        ),
+        rules={
+            "entry": (
+                "open or adjust positions when |zscore| >= z_entry "
+                "long if zscore <= -z_entry, keep the position until exit condition met; " 
+                "short if zscore >= +z_entry, keep the position until exit condition met."
+            ),
+            "exit": (
+                "close positions when |zscore| <= z_exit or the sign of the zscore reverses, "
+                "sell long positions when zscore > -z_exit"
+                "cover short positions when zscore < +z_exit"
+            ),
+        },
+        params={
+            "lookback": 10,
+            "z_entry": 1.5,
+            "z_exit": 0.2,
+        },
     ),
     "breakout": _base_spec(
         "breakout",
-        "Donchian-style breakout with trailing stop.",
-        signal="Price crossing above 55-day high triggers entry.",
-        rules={"entry": "close > rolling_high", "exit": "close < trailing_stop"},
-        params={"window": 55, "stop_window": 20},
+        "Donchian-style long breakout with a trailing stop.",
+        signal=(
+            "Compute a {window}-day rolling high of the prices (rolling_high_t,the highest close over the past {window} days, excluding today)" 
+            "Compute a {stop_window}-day rolling low of the prices(trailing_stop_t, the lowest close over the past {stop_window} days, excluding today). "
+            "Enter a long position when the close breaks above this rolling high. "
+            "Once entry, maintain the position until close_t < trailing_stop_t"
+        ),
+        rules={
+            "entry": (
+                "open a long position when close_t > rolling_high_t."
+            ),
+            "exit": (
+                "exit the long position when close_t < trailing_stop_t."
+                "You can only exit long positions! NEGATIVE positions is FORBBIDEN!"
+                "if not in a position, you must wait for the next entry signal."
+            ),
+        },
+        params={
+            "window": 55,
+            "stop_window": 20,
+        },
     ),
     "pair_trading": _base_spec(
         "pair_trading",
@@ -95,7 +146,7 @@ TASK_LIBRARY: Dict[str, Dict[str, Any]] = {
         signal="Spread z-score between highly correlated pair.",
         rules={"entry": "spread zscore > entry_z", "exit": "zscore < exit_z"},
         params={"lookback": 60, "mode": "cointegration", "correlation_threshhold": 0.6, "entry_z": 1.5, "exit_z": 0.5},
-        tools=DEFAULT_TOOLS + ["returns"],
+        tools=DEFAULT_TOOLS,
     ),
     "volatility_targeting": _base_spec(
         "volatility_targeting",
@@ -112,36 +163,55 @@ TASK_LIBRARY: Dict[str, Dict[str, Any]] = {
         rules={"entry": "allocate inverse std", "exit": "rebalance monthly"},
         params={"lookback": 60},
     ),
-    "atr_bandit": _base_spec(
-        "atr_bandit",
-        "ATR-driven stop/take-profit allocation bandit.",
-        signal="Allocate risk budget via ATR sizing.",
-        rules={"entry": "atr < threshold", "exit": "stop loss atr multiple"},
-        params={"atr_window": 14, "risk_budget": 0.02, "tp_mult": 1.5, "sl_mult": 1.0},
-    ),
+
     "weekday_mask": _base_spec(
         "weekday_mask",
-        "Mask exposures by weekday seasonality.",
-        signal="Hold only on weekdays with positive expected alpha.",
-        rules={"entry": "allowed weekdays long the basket", "exit": "otherwise flat"},
-        params={"allowed_weekdays": [0, 2, 4]},  # Monday, Wednesday, Friday
+        "Hard weekday seasonality mask on exposures (no smoothing).",
+        signal=(
+            "Apply a binary weekday filter to the basket: on allowed weekdays the strategy "
+            "is fully invested; on all other weekdays position is 0."
+            "Do NOT use numpy arrays for the mask. "
+            "Use returns.index.to_series().dt.weekday to compute weekdays, and then replicate to a DataFrame with column number = asset number."
+            "Don't shift weight since weekdays are known in advance."
+        ),
+        rules={
+            "entry": (
+                "if today's weekday is in allowed_weekdays, set exposure to 1.0 "
+                "(or pass through the underlying strategy's signal unchanged)"
+            ),
+            "exit": (
+                "if today's weekday is not in allowed_weekdays, set exposure to 0.0 "
+                "and close all positions"
+            ),
+            "weighting": "Equally weight all allowed assets on allowed weekdays."
+        },
+        params={
+            "allowed_weekdays": [0, 2, 4],  # Monday=0, ..., Friday=4 → trade Mon/Wed/Fri
+        },
     ),
+
+
     "regime_filter_ma": _base_spec(
         "regime_filter_ma",
-        "Regime filter using moving average crossover.",
-        signal="Stay invested when fast MA > slow MA.",
-        rules={"entry": "fast_ma > slow_ma", "exit": "fast_ma <= slow_ma"},
-        params={"fast": 50, "slow": 200},
-    ),
-    "cost_sensitivity": _base_spec(
-        "cost_sensitivity",
-        "Stress test strategy under multiple cost assumptions.",
-        signal="Replay base strategy under multiple cost grids.",
-        rules={"entry": "base weights", "exit": "cost grid analysis"},
-        params={"costs_bps_grid": [0, 1, 5, 10, 25]},
-        tools=ROBUSTNESS_TOOLS,
-        required_metrics=["ann_return", "sharpe", "max_dd", "turnover", "cost_elasticity"],
-    ),
+        "Trend regime filter with smoothed moving-average crossover exposure.",
+        signal=(
+            "Compute fast and slow moving averages of the close (fast = {fast}, slow = {slow}). "
+            "Define a binary risk-on indicator I_t = 1 if fast_ma_t > slow_ma_t, else 0. "
+            "Smooth I_t over N days (N = smoothing_window) using a moving average to obtain a "
+            "continuous exposure weight w_t in [0, 1]."
+        ),
+        rules={
+            "entry": "increase exposure as the smoothed risk-on indicator w_t moves toward 1",
+            "exit": "decrease exposure as w_t moves toward 0; no discrete hold-N-days tickets",
+        },
+        params={
+            "fast": 50,
+            "slow": 200,
+            "smoothing_window": 5,  # or whatever N you like
+        },
+    )
+
+
 
 }
 

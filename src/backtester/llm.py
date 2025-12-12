@@ -19,7 +19,7 @@ class LLMConfig:
 
 
 # Defaults, overridable via env vars
-DEFAULT_MODEL = os.environ.get("ARGONNE_INFERENCE_MODEL", "meta-llama/Meta-Llama-3.1-70B-Instruct")
+DEFAULT_MODEL = os.environ.get("ARGONNE_INFERENCE_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
 DEFAULT_BASE_URL = os.environ.get(
     "ARGONNE_INFERENCE_URL",
     "https://inference-api.alcf.anl.gov/resource_server/sophia/vllm/v1",
